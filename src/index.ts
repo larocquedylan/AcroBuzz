@@ -1,6 +1,6 @@
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import { __prod__ } from './consts';
-import * as Posts from './entities/Posts';
+import * as Posts from './entities/Post';
 import microConfig from './mikro-orm.config';
 import express from 'express';
 import { ApolloServer } from '@apollo/server';

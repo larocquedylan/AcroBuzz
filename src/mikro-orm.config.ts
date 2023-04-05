@@ -1,7 +1,7 @@
 // -- Active: 1680624047577@@127.0.0.1@5432@acrobuzz
 import path from 'path';
 import { __prod__ } from './consts';
-import { Post } from './entities/Posts';
+import { Post } from './entities/Post';
 import { MikroORM } from '@mikro-orm/core';
 import dotenv from 'dotenv';
 
