@@ -22,5 +22,5 @@ export class User {
 
   // remove the @Field() decorator to hide the password from the graphql schema
   @Property({ type: 'text' })
-  paswword!: string;
+  password!: string;
 }
