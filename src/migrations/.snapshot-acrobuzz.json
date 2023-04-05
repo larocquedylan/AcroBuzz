@@ -101,8 +101,8 @@
           "nullable": false,
           "mappedType": "text"
         },
-        "paswword": {
-          "name": "paswword",
+        "password": {
+          "name": "password",
           "type": "text",
           "unsigned": false,
           "autoincrement": false,
