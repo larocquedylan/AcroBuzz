@@ -12,6 +12,10 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { PostResolver } from './resolvers/post';
 import 'reflect-metadata';
 import { UserResolver } from './resolvers/user';
+import RedisStore from 'connect-redis';
+import session from 'express-session';
+import { createClient } from 'redis';
+import { myContext } from './types';
 
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
@@ -30,6 +34,17 @@ const main = async () => {
 
     const app = express();
 
+    // Initialize client.
+    let redisClient = createClient();
+    redisClient.connect().catch(console.error);
+
+    // Initialize store.
+    let redisStore = new RedisStore({
+      client: redisClient,
+      prefix: 'myapp:',
+      disableTouch: true,
+    });
+
     app.get('/', (_, res) => {
       res.send('hello');
     });
@@ -45,8 +60,25 @@ const main = async () => {
     app.use(
       cors(),
       bodyParser.json(),
+      session({
+        store: redisStore,
+        name: 'theglove',
+        resave: false, // required: force lightweight session keep alive (touch)
+        saveUninitialized: false, // recommended: only save session when data exists
+        secret: 'garypayton', // use a env later
+        cookie: {
+          maxAge: 1000 * 60 * 60 * 24 * 365 * 5, // 5 years
+          httpOnly: true, // cookie only accessible by the web server
+          sameSite: 'lax', // protection against CSRF
+          secure: __prod__, // cookie only works in https, when prod is true
+        },
+      }),
       expressMiddleware(apolloServer, {
-        context: async () => ({ em: orm.em }),
+        context: async ({ req, res }): Promise<myContext> => ({
+          em: orm.em,
+          req,
+          res,
+        }),
       })
     );
     app.listen(8080, () => {
