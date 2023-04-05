@@ -4,6 +4,7 @@ import { __prod__ } from './consts';
 import { Post } from './entities/Post';
 import { MikroORM } from '@mikro-orm/core';
 import dotenv from 'dotenv';
+import { User } from './entities/User';
 
 dotenv.config();
 
@@ -12,7 +13,7 @@ export default {
     path: path.join(__dirname, './migrations'),
     pattern: /^[\w-]+\d+\.[tj]s$/,
   },
-  entities: [Post],
+  entities: [Post, User],
   dbName: 'acrobuzz',
   clientUrl: process.env.DATABASE_URL,
   type: 'postgresql',
