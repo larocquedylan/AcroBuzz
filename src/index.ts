@@ -1,6 +1,6 @@
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import { __prod__ } from './consts';
-import * as Posts from './entities/Post';
+// import * as Posts from './entities/Post';
 import microConfig from './mikro-orm.config';
 import express from 'express';
 import { ApolloServer } from '@apollo/server';
@@ -11,6 +11,7 @@ import bodyParser from 'body-parser';
 import { expressMiddleware } from '@apollo/server/express4';
 import { PostResolver } from './resolvers/post';
 import 'reflect-metadata';
+import { UserResolver } from './resolvers/user';
 
 const main = async () => {
   const orm = await MikroORM.init(microConfig);
@@ -19,11 +20,12 @@ const main = async () => {
   await orm.getMigrator().up();
 
   await RequestContext.createAsync(orm.em, async () => {
-    const post = orm.em.create(Posts.Post, {
-      title: 'my first post',
-      createdAt: '',
-      updatedAt: '',
-    });
+    // const post = orm.em.create(Posts.Post, {
+    //   title: 'my first post',
+    //   createdAt: '',
+    //   updatedAt: '',
+    // });
+
     // await orm.em.persistAndFlush(post);
 
     const app = express();
@@ -34,7 +36,7 @@ const main = async () => {
 
     const apolloServer = new ApolloServer({
       schema: await buildSchema({
-        resolvers: [HelloResolver, PostResolver],
+        resolvers: [HelloResolver, PostResolver, UserResolver],
         validate: false,
       }),
     });
