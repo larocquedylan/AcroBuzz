@@ -38,6 +38,7 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  // me query
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req, em }: myContext) {
     // check if logged in
@@ -49,7 +50,7 @@ export class UserResolver {
     return user;
   }
 
-  // register
+  // register mutation
   @Mutation(() => UserResponse)
   async register(
     @Arg('options', () => UsernamePasswordInput) options: UsernamePasswordInput,
@@ -106,6 +107,7 @@ export class UserResolver {
     return { user };
   }
 
+  // login mutation
   @Mutation(() => UserResponse)
   async login(
     @Arg('options', () => UsernamePasswordInput) options: UsernamePasswordInput,
