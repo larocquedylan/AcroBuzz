@@ -1,5 +1,5 @@
 import { MikroORM, RequestContext } from '@mikro-orm/core';
-import { __prod__ } from './consts';
+import { COOKIE_NAME, __prod__ } from './consts';
 // import * as Posts from './entities/Post';
 import microConfig from './mikro-orm.config';
 import express from 'express';
@@ -65,7 +65,7 @@ const main = async () => {
       bodyParser.json(),
       session({
         store: redisStore,
-        name: 'theglove',
+        name: COOKIE_NAME,
         resave: false, // required: force lightweight session keep alive (touch)
         saveUninitialized: false, // recommended: only save session when data exists
         secret: 'garypayton', // use a env later

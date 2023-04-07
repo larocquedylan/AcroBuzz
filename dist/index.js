@@ -47,7 +47,7 @@ const main = async () => {
             credentials: true,
         }), body_parser_1.default.json(), (0, express_session_1.default)({
             store: redisStore,
-            name: 'theglove',
+            name: consts_1.COOKIE_NAME,
             resave: false,
             saveUninitialized: false,
             secret: 'garypayton',
