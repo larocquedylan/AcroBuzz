@@ -42,7 +42,10 @@ const main = async () => {
             }),
         });
         await apolloServer.start();
-        app.use((0, cors_1.default)(), body_parser_1.default.json(), (0, express_session_1.default)({
+        app.use((0, cors_1.default)({
+            origin: ['http://localhost:3000'],
+            credentials: true,
+        }), body_parser_1.default.json(), (0, express_session_1.default)({
             store: redisStore,
             name: 'theglove',
             resave: false,

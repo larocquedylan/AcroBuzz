@@ -58,7 +58,10 @@ const main = async () => {
     await apolloServer.start();
 
     app.use(
-      cors(),
+      cors<cors.CorsRequest>({
+        origin: ['http://localhost:3000'],
+        credentials: true,
+      }),
       bodyParser.json(),
       session({
         store: redisStore,
