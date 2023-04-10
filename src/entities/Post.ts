@@ -1,36 +1,31 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 import { Field, ObjectType } from 'type-graphql';
+import {
+  BaseEntity,
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @ObjectType()
 @Entity()
-export class Post {
+export class Post extends BaseEntity {
   @Field()
-  @PrimaryKey()
+  @PrimaryGeneratedColumn()
   _id!: number;
 
   @Field(() => String)
-  @Property()
-  createdAt: Date = new Date();
+  @CreateDateColumn()
+  createdAt: Date;
 
   @Field(() => String)
-  @Property({ onUpdate: () => new Date() })
-  updatedAt: Date = new Date();
+  @UpdateDateColumn()
+  updatedAt: Date;
 
   @Field()
-  @Property({ type: 'text' })
+  @Column({ type: 'text' })
   title!: string;
 }
 
-// @Entity() decorator tells mikro-orm that this is an entity
-
-// @PrimaryKey() decorator tells mikro-orm that this is the primary key
-// @Property() decorator tells mikro-orm that this is a property
-// @Property({ type: 'text' }) decorator tells mikro-orm that this is a property and the type is text
-// @Property({ onUpdate: () => new Date() }) decorator tells mikro-orm that this is a property and the type is date
-
-// @Field(() => Int)) decorator tells type-graphql that this is a field and the type is Int
-// @Field(() => String) decorator tells type-graphql that this is a field and the type is String
-// @Field() exposes the field to the graphql schema
-
-// we can stack deocrators
-// we can turn classes into graphql types by using the @ObjectType() decorator
+// Post.insert;
