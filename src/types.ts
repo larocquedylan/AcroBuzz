@@ -1,8 +1,11 @@
-import { EntityManager, IDatabaseDriver, Connection } from '@mikro-orm/core';
-import { Request, Response } from 'express'; // access req and res in resolvers
+import { EntityManager } from 'typeorm';
+import { Request, Response } from 'express';
+import { Session } from 'express-session';
+import { Client } from 'redis';
 
-export type myContext = {
-  em: EntityManager<any> & EntityManager<IDatabaseDriver<Connection>>;
-  req: Request & { session: Express.Session };
+export type MyContext = {
+  em: EntityManager;
+  req: Request & { session: Session };
   res: Response;
+  redis: Client;
 };
