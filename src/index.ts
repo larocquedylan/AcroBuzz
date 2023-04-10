@@ -15,15 +15,19 @@ import { UserResolver } from './resolvers/user';
 import RedisStore from 'connect-redis';
 import session from 'express-session';
 import { createClient } from 'redis';
-import { myContext } from './types';
+import { MyContext } from './types';
+import {myDataSource} from './data-source';
+import {DataSource} from 'typeorm';
+
+const appDataSource = myDataSource;
 
 const main = async () => {
-  const orm = await MikroORM.init(microConfig);
-  console.log('Connected to the PostgreSQL database');
-
-  await orm.getMigrator().up();
-
-  await RequestContext.createAsync(orm.em, async () => {
+  // appDataSource.initialize();
+  // appDataSource.
+  // const orm = await MikroORM.init(microConfig);
+  // console.log('Connected to the PostgreSQL database');
+  // await orm.getMigrator().up();
+  // await RequestContext.createAsync(orm.em, async () => {
     const app = express();
 
     // Initialize client.
@@ -69,10 +73,10 @@ const main = async () => {
         },
       }),
       expressMiddleware(apolloServer, {
-        context: async ({ req, res }): Promise<myContext> => ({
-          em: orm.em,
+        context: async ({ req, res }): Promise<MyContext> => ({
           req,
           res,
+          redis,
         }),
       })
     );
@@ -81,6 +85,7 @@ const main = async () => {
     });
   });
 };
+
 main().catch((err) => {
   console.error(err);
 });
