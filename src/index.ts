@@ -24,14 +24,6 @@ const main = async () => {
   await orm.getMigrator().up();
 
   await RequestContext.createAsync(orm.em, async () => {
-    // const post = orm.em.create(Posts.Post, {
-    //   title: 'my first post',
-    //   createdAt: '',
-    //   updatedAt: '',
-    // });
-
-    // await orm.em.persistAndFlush(post);
-
     const app = express();
 
     // Initialize client.
