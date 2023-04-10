@@ -4,9 +4,6 @@ import { myContext } from 'src/types';
 
 @Resolver()
 export class PostResolver {
-  // query that returns a list of posts
-  // we are returning an array so () => []
-  // the array is of type Post -- () => [Post] we just pass the entity but it isn't a graphql type
   @Query(() => [Post])
   posts(@Ctx() { em }: myContext): Promise<Post[]> {
     return em.find(Post, {});
@@ -62,8 +59,6 @@ export class PostResolver {
     @Ctx() { em }: myContext
   ): Promise<Boolean> {
     await em.nativeDelete(Post, { _id: id });
-    // const post = await em.findOne(Post, { _id: id });
-    // await em.remove(post).flush();
     return true;
   }
 }
