@@ -1,4 +1,5 @@
 import { Field, ObjectType, Int } from 'type-graphql';
+import { UserType } from './user';
 
 @ObjectType()
 export class PostType {
@@ -13,4 +14,7 @@ export class PostType {
 
   @Field()
   title: string;
+
+  @Field(() => UserType, { nullable: true })
+  author?: UserType;
 }
