@@ -17,9 +17,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
 const type_graphql_1 = require("type-graphql");
-const User_1 = require("../entities/User");
 const argon2_1 = __importDefault(require("argon2"));
 const consts_1 = require("../consts");
+require("reflect-metadata");
+const user_1 = require("../types/user");
 let UsernamePasswordInput = class UsernamePasswordInput {
 };
 __decorate([
@@ -53,21 +54,23 @@ __decorate([
     __metadata("design:type", Array)
 ], UserResponse.prototype, "errors", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(() => User_1.User, { nullable: true }),
-    __metadata("design:type", User_1.User)
+    (0, type_graphql_1.Field)(() => user_1.UserType, { nullable: true }),
+    __metadata("design:type", user_1.UserType)
 ], UserResponse.prototype, "user", void 0);
 UserResponse = __decorate([
     (0, type_graphql_1.ObjectType)()
 ], UserResponse);
 let UserResolver = class UserResolver {
-    async me({ req, em }) {
+    async me({ req, prisma }) {
         if (!req.session.userId) {
             return null;
         }
-        const user = await em.findOne(User_1.User, { _id: req.session.userId });
+        const user = await prisma.user.findUnique({
+            where: { id: req.session.userId },
+        });
         return user;
     }
-    async register(options, { em, req }) {
+    async register(options, { prisma, req }) {
         if (options.username.length <= 2) {
             return {
                 errors: [
@@ -89,34 +92,20 @@ let UserResolver = class UserResolver {
             };
         }
         const hashedPassword = await argon2_1.default.hash(options.password);
-        const user = em.create(User_1.User, {
-            username: options.username,
-            createdAt: '',
-            updatedAt: '',
-            password: hashedPassword,
+        const user = await prisma.user.create({
+            data: {
+                username: options.username,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                password: hashedPassword,
+            },
         });
-        try {
-            await em.persistAndFlush(user);
-        }
-        catch (err) {
-            if (err.code === '23505' || err.detail.includes('already exists')) {
-                console.log('username taken');
-                return {
-                    errors: [
-                        {
-                            field: 'username',
-                            message: 'username already taken',
-                        },
-                    ],
-                };
-            }
-        }
-        req.session.userId = user._id;
+        req.session.userId = user.id;
         return { user };
     }
-    async login(options, { em, req }) {
-        const user = await em.findOne(User_1.User, {
-            username: options.username,
+    async login(options, { prisma, req }) {
+        const user = await prisma.user.findUnique({
+            where: { username: options.username },
         });
         if (!user) {
             return {
@@ -139,7 +128,7 @@ let UserResolver = class UserResolver {
                 ],
             };
         }
-        req.session.userId = user._id;
+        req.session.userId = user.id;
         return { user };
     }
     logout({ req, res }) {
@@ -155,7 +144,7 @@ let UserResolver = class UserResolver {
     }
 };
 __decorate([
-    (0, type_graphql_1.Query)(() => User_1.User, { nullable: true }),
+    (0, type_graphql_1.Query)(() => user_1.UserType, { nullable: true }),
     __param(0, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
