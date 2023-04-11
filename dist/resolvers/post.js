@@ -16,6 +16,7 @@ exports.PostResolver = void 0;
 const type_graphql_1 = require("type-graphql");
 const post_1 = require("../types/post");
 require("reflect-metadata");
+const isAuth_1 = require("../middleware/isAuth");
 let PostResolver = class PostResolver {
     async posts({ prisma }) {
         return await prisma.post.findMany({ include: { author: true } });
@@ -54,6 +55,7 @@ __decorate([
 ], PostResolver.prototype, "post", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => post_1.PostType),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)('title', () => String)),
     __param(1, (0, type_graphql_1.Arg)('authorId', () => type_graphql_1.Int)),
     __param(2, (0, type_graphql_1.Ctx)()),
@@ -63,6 +65,7 @@ __decorate([
 ], PostResolver.prototype, "createPost", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => post_1.PostType, { nullable: true }),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)('title', () => String, { nullable: true })),
     __param(2, (0, type_graphql_1.Ctx)()),
@@ -72,6 +75,7 @@ __decorate([
 ], PostResolver.prototype, "updatePost", null);
 __decorate([
     (0, type_graphql_1.Mutation)(() => Boolean),
+    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),

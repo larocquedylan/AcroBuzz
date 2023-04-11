@@ -1,8 +1,17 @@
-import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
+import {
+  Arg,
+  Ctx,
+  Int,
+  Mutation,
+  Query,
+  Resolver,
+  UseMiddleware,
+} from 'type-graphql';
 import { myContext } from '../types';
 import { Post as PostModel } from '@prisma/client'; // Import Post from @prisma/client
 import { PostType } from '../types/post';
 import 'reflect-metadata';
+import { isAuth } from '../middleware/isAuth';
 
 @Resolver(() => PostType)
 export class PostResolver {
@@ -26,6 +35,7 @@ export class PostResolver {
 
   // create a post
   @Mutation(() => PostType)
+  @UseMiddleware(isAuth)
   async createPost(
     @Arg('title', () => String) title: string,
     @Arg('authorId', () => Int) authorId: number,
@@ -36,6 +46,7 @@ export class PostResolver {
 
   // update a post
   @Mutation(() => PostType, { nullable: true })
+  @UseMiddleware(isAuth)
   async updatePost(
     @Arg('id', () => Int) id: number,
     @Arg('title', () => String, { nullable: true }) title: string,
@@ -46,6 +57,7 @@ export class PostResolver {
 
   // delete a post
   @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
   async deletePost(
     @Arg('id', () => Int) id: number,
     @Ctx() { prisma }: myContext
