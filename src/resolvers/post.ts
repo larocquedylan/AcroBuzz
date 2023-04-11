@@ -1,69 +1,56 @@
-import { Post } from '../entities/Post';
 import { Arg, Ctx, Int, Mutation, Query, Resolver } from 'type-graphql';
-import { myContext } from 'src/types';
+import { myContext } from '../types';
+import { Post as PostModel } from '@prisma/client'; // Import Post from @prisma/client
+import { PostType } from '../types/post';
+import 'reflect-metadata';
 
-@Resolver()
+@Resolver(() => PostType)
 export class PostResolver {
   // query that returns a list of posts
-  // we are returning an array so () => []
-  // the array is of type Post -- () => [Post] we just pass the entity but it isn't a graphql type
-  @Query(() => [Post])
-  posts(@Ctx() { em }: myContext): Promise<Post[]> {
-    return em.find(Post, {});
+  @Query(() => [PostType])
+  async posts(@Ctx() { prisma }: myContext): Promise<PostModel[]> {
+    return await prisma.post.findMany({ include: { author: true } });
   }
 
   // query that returns a single post
-  @Query(() => Post, { nullable: true })
-  post(
+  @Query(() => PostType, { nullable: true })
+  async post(
     @Arg('id', () => Int) id: number,
-    @Ctx() { em }: myContext
-  ): Promise<Post | null> {
-    return em.findOne(Post, { _id: id });
+    @Ctx() { prisma }: myContext
+  ): Promise<PostModel | null> {
+    return await prisma.post.findUnique({
+      where: { id },
+      include: { author: true },
+    });
   }
 
   // create a post
-  @Mutation(() => Post)
+  @Mutation(() => PostType)
   async createPost(
     @Arg('title', () => String) title: string,
-    @Ctx() { em }: myContext
-  ): Promise<Post> {
-    const post = em.create(Post, {
-      title,
-      createdAt: '',
-      updatedAt: '',
-    });
-    await em.persistAndFlush(post);
-    return post;
+    @Arg('authorId', () => Int) authorId: number,
+    @Ctx() { prisma }: myContext
+  ): Promise<PostModel> {
+    return await prisma.post.create({ data: { title, authorId } });
   }
 
   // update a post
-  @Mutation(() => Post, { nullable: true })
+  @Mutation(() => PostType, { nullable: true })
   async updatePost(
     @Arg('id', () => Int) id: number,
     @Arg('title', () => String, { nullable: true }) title: string,
-    @Ctx() { em }: myContext
-  ): Promise<Post | null> {
-    const post = await em.findOne(Post, { _id: id });
-    if (!post) {
-      return null;
-    }
-    if (typeof title !== 'undefined') {
-      post.title = title;
-      post.updatedAt = new Date();
-      await em.persistAndFlush(post);
-    }
-    return post;
+    @Ctx() { prisma }: myContext
+  ): Promise<PostModel | null> {
+    return await prisma.post.update({ where: { id }, data: { title } });
   }
 
   // delete a post
   @Mutation(() => Boolean)
   async deletePost(
     @Arg('id', () => Int) id: number,
-    @Ctx() { em }: myContext
+    @Ctx() { prisma }: myContext
   ): Promise<Boolean> {
-    await em.nativeDelete(Post, { _id: id });
-    // const post = await em.findOne(Post, { _id: id });
-    // await em.remove(post).flush();
+    await prisma.post.delete({ where: { id } });
     return true;
   }
 }

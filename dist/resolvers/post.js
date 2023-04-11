@@ -13,50 +13,39 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostResolver = void 0;
-const Post_1 = require("../entities/Post");
 const type_graphql_1 = require("type-graphql");
+const post_1 = require("../types/post");
+require("reflect-metadata");
 let PostResolver = class PostResolver {
-    posts({ em }) {
-        return em.find(Post_1.Post, {});
+    async posts({ prisma }) {
+        return await prisma.post.findMany({ include: { author: true } });
     }
-    post(id, { em }) {
-        return em.findOne(Post_1.Post, { _id: id });
-    }
-    async createPost(title, { em }) {
-        const post = em.create(Post_1.Post, {
-            title,
-            createdAt: '',
-            updatedAt: '',
+    async post(id, { prisma }) {
+        return await prisma.post.findUnique({
+            where: { id },
+            include: { author: true },
         });
-        await em.persistAndFlush(post);
-        return post;
     }
-    async updatePost(id, title, { em }) {
-        const post = await em.findOne(Post_1.Post, { _id: id });
-        if (!post) {
-            return null;
-        }
-        if (typeof title !== 'undefined') {
-            post.title = title;
-            post.updatedAt = new Date();
-            await em.persistAndFlush(post);
-        }
-        return post;
+    async createPost(title, authorId, { prisma }) {
+        return await prisma.post.create({ data: { title, authorId } });
     }
-    async deletePost(id, { em }) {
-        await em.nativeDelete(Post_1.Post, { _id: id });
+    async updatePost(id, title, { prisma }) {
+        return await prisma.post.update({ where: { id }, data: { title } });
+    }
+    async deletePost(id, { prisma }) {
+        await prisma.post.delete({ where: { id } });
         return true;
     }
 };
 __decorate([
-    (0, type_graphql_1.Query)(() => [Post_1.Post]),
+    (0, type_graphql_1.Query)(() => [post_1.PostType]),
     __param(0, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
 __decorate([
-    (0, type_graphql_1.Query)(() => Post_1.Post, { nullable: true }),
+    (0, type_graphql_1.Query)(() => post_1.PostType, { nullable: true }),
     __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
@@ -64,15 +53,16 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "post", null);
 __decorate([
-    (0, type_graphql_1.Mutation)(() => Post_1.Post),
+    (0, type_graphql_1.Mutation)(() => post_1.PostType),
     __param(0, (0, type_graphql_1.Arg)('title', () => String)),
-    __param(1, (0, type_graphql_1.Ctx)()),
+    __param(1, (0, type_graphql_1.Arg)('authorId', () => type_graphql_1.Int)),
+    __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "createPost", null);
 __decorate([
-    (0, type_graphql_1.Mutation)(() => Post_1.Post, { nullable: true }),
+    (0, type_graphql_1.Mutation)(() => post_1.PostType, { nullable: true }),
     __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)('title', () => String, { nullable: true })),
     __param(2, (0, type_graphql_1.Ctx)()),
@@ -89,7 +79,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "deletePost", null);
 PostResolver = __decorate([
-    (0, type_graphql_1.Resolver)()
+    (0, type_graphql_1.Resolver)(() => post_1.PostType)
 ], PostResolver);
 exports.PostResolver = PostResolver;
 //# sourceMappingURL=post.js.map

@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HelloResolver = void 0;
 const type_graphql_1 = require("type-graphql");
+require("reflect-metadata");
 let HelloResolver = class HelloResolver {
     hello() {
         return 'thank u';

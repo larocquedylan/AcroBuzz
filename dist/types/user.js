@@ -9,38 +9,42 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Post = void 0;
-const core_1 = require("@mikro-orm/core");
+exports.UserType = void 0;
 const type_graphql_1 = require("type-graphql");
-let Post = class Post {
-    constructor() {
-        this.createdAt = new Date();
-        this.updatedAt = new Date();
-    }
+const post_1 = require("./post");
+const vote_1 = require("./vote");
+let UserType = class UserType {
 };
 __decorate([
-    (0, type_graphql_1.Field)(),
-    (0, core_1.PrimaryKey)(),
+    (0, type_graphql_1.Field)(() => type_graphql_1.Int),
     __metadata("design:type", Number)
-], Post.prototype, "_id", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(() => String),
-    (0, core_1.Property)(),
-    __metadata("design:type", Date)
-], Post.prototype, "createdAt", void 0);
-__decorate([
-    (0, type_graphql_1.Field)(() => String),
-    (0, core_1.Property)({ onUpdate: () => new Date() }),
-    __metadata("design:type", Date)
-], Post.prototype, "updatedAt", void 0);
+], UserType.prototype, "id", void 0);
 __decorate([
     (0, type_graphql_1.Field)(),
-    (0, core_1.Property)({ type: 'text' }),
+    __metadata("design:type", Date)
+], UserType.prototype, "createdAt", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", Date)
+], UserType.prototype, "updatedAt", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
     __metadata("design:type", String)
-], Post.prototype, "title", void 0);
-Post = __decorate([
-    (0, type_graphql_1.ObjectType)(),
-    (0, core_1.Entity)()
-], Post);
-exports.Post = Post;
-//# sourceMappingURL=Post.js.map
+], UserType.prototype, "username", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(),
+    __metadata("design:type", String)
+], UserType.prototype, "password", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => [post_1.PostType], { nullable: true }),
+    __metadata("design:type", Array)
+], UserType.prototype, "posts", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => [vote_1.VoteType], { nullable: true }),
+    __metadata("design:type", Array)
+], UserType.prototype, "votes", void 0);
+UserType = __decorate([
+    (0, type_graphql_1.ObjectType)()
+], UserType);
+exports.UserType = UserType;
+//# sourceMappingURL=user.js.map
