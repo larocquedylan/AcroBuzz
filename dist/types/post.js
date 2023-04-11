@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PostType = void 0;
 const type_graphql_1 = require("type-graphql");
 const user_1 = require("./user");
+const vote_1 = require("./vote");
 let PostType = class PostType {
 };
 __decorate([
@@ -34,6 +35,10 @@ __decorate([
     (0, type_graphql_1.Field)(() => user_1.UserType, { nullable: true }),
     __metadata("design:type", user_1.UserType)
 ], PostType.prototype, "author", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => [vote_1.VoteType], { nullable: true }),
+    __metadata("design:type", Array)
+], PostType.prototype, "votes", void 0);
 PostType = __decorate([
     (0, type_graphql_1.ObjectType)()
 ], PostType);
