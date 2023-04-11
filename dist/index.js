@@ -18,6 +18,7 @@ const user_1 = require("./resolvers/user");
 const connect_redis_1 = __importDefault(require("connect-redis"));
 const express_session_1 = __importDefault(require("express-session"));
 const redis_1 = require("redis");
+const voter_1 = require("./resolvers/voter");
 const main = async () => {
     const prisma = new client_1.PrismaClient();
     console.log('Connected to the PostgreSQL database');
@@ -34,7 +35,7 @@ const main = async () => {
     });
     const apolloServer = new server_1.ApolloServer({
         schema: await (0, type_graphql_1.buildSchema)({
-            resolvers: [hello_1.HelloResolver, post_1.PostResolver, user_1.UserResolver],
+            resolvers: [hello_1.HelloResolver, post_1.PostResolver, user_1.UserResolver, voter_1.VoteResolver],
             validate: false,
         }),
     });

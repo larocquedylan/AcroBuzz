@@ -14,6 +14,7 @@ import RedisStore from 'connect-redis';
 import session from 'express-session';
 import { createClient } from 'redis';
 import { myContext } from './types';
+import { VoteResolver } from './resolvers/voter';
 
 const main = async () => {
   const prisma = new PrismaClient();
@@ -38,7 +39,7 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [HelloResolver, PostResolver, UserResolver],
+      resolvers: [HelloResolver, PostResolver, UserResolver, VoteResolver],
       validate: false,
     }),
   });
