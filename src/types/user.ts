@@ -1,5 +1,6 @@
 import { Field, ObjectType, Int } from 'type-graphql';
 import { PostType } from './post';
+import { VoteType } from './vote';
 
 @ObjectType()
 export class UserType {
@@ -20,4 +21,7 @@ export class UserType {
 
   @Field(() => [PostType], { nullable: true })
   posts?: PostType[];
+
+  @Field(() => [VoteType], { nullable: true })
+  votes?: VoteType[];
 }
