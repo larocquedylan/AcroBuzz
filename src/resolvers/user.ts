@@ -39,7 +39,7 @@ class UserResponse {
   user?: UserType;
 }
 
-@Resolver()
+@Resolver(() => UserType)
 export class UserResolver {
   // me query
   @Query(() => UserType, { nullable: true })
