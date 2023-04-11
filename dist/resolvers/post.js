@@ -18,13 +18,16 @@ const post_1 = require("../types/post");
 require("reflect-metadata");
 let PostResolver = class PostResolver {
     async posts({ prisma }) {
-        return await prisma.post.findMany();
+        return await prisma.post.findMany({ include: { author: true } });
     }
     async post(id, { prisma }) {
-        return await prisma.post.findUnique({ where: { id } });
+        return await prisma.post.findUnique({
+            where: { id },
+            include: { author: true },
+        });
     }
-    async createPost(title, { prisma }) {
-        return await prisma.post.create({ data: { title } });
+    async createPost(title, authorId, { prisma }) {
+        return await prisma.post.create({ data: { title, authorId } });
     }
     async updatePost(id, title, { prisma }) {
         return await prisma.post.update({ where: { id }, data: { title } });
@@ -52,9 +55,10 @@ __decorate([
 __decorate([
     (0, type_graphql_1.Mutation)(() => post_1.PostType),
     __param(0, (0, type_graphql_1.Arg)('title', () => String)),
-    __param(1, (0, type_graphql_1.Ctx)()),
+    __param(1, (0, type_graphql_1.Arg)('authorId', () => type_graphql_1.Int)),
+    __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:paramtypes", [String, Number, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "createPost", null);
 __decorate([
@@ -75,7 +79,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "deletePost", null);
 PostResolver = __decorate([
-    (0, type_graphql_1.Resolver)()
+    (0, type_graphql_1.Resolver)(() => post_1.PostType)
 ], PostResolver);
 exports.PostResolver = PostResolver;
 //# sourceMappingURL=post.js.map

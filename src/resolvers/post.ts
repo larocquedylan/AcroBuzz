@@ -4,12 +4,12 @@ import { Post as PostModel } from '@prisma/client'; // Import Post from @prisma/
 import { PostType } from '../types/post';
 import 'reflect-metadata';
 
-@Resolver()
+@Resolver(() => PostType)
 export class PostResolver {
   // query that returns a list of posts
   @Query(() => [PostType])
   async posts(@Ctx() { prisma }: myContext): Promise<PostModel[]> {
-    return await prisma.post.findMany();
+    return await prisma.post.findMany({ include: { author: true } });
   }
 
   // query that returns a single post
@@ -18,16 +18,20 @@ export class PostResolver {
     @Arg('id', () => Int) id: number,
     @Ctx() { prisma }: myContext
   ): Promise<PostModel | null> {
-    return await prisma.post.findUnique({ where: { id } });
+    return await prisma.post.findUnique({
+      where: { id },
+      include: { author: true },
+    });
   }
 
   // create a post
   @Mutation(() => PostType)
   async createPost(
     @Arg('title', () => String) title: string,
+    @Arg('authorId', () => Int) authorId: number,
     @Ctx() { prisma }: myContext
   ): Promise<PostModel> {
-    return await prisma.post.create({ data: { title } });
+    return await prisma.post.create({ data: { title, authorId } });
   }
 
   // update a post
