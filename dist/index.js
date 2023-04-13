@@ -62,6 +62,7 @@ const main = async () => {
                 prisma,
                 req: req,
                 res,
+                redis: redisClient,
             };
         },
     }));
