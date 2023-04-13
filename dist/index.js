@@ -58,6 +58,7 @@ const main = async () => {
     }), (0, express4_1.expressMiddleware)(apolloServer, {
         context: async ({ req, res }) => {
             const session = req.session;
+            console.log('🚀 ~ file: index.ts:71 ~ context: ~ req.headers:', req.headers);
             return {
                 prisma,
                 req: req,
