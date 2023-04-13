@@ -16,6 +16,9 @@ export class PostType {
   @Field()
   title: string;
 
+  @Field()
+  text: string;
+
   @Field(() => UserType, { nullable: true })
   author?: UserType;
 
