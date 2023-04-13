@@ -27,8 +27,12 @@ let PostResolver = class PostResolver {
             include: { author: true },
         });
     }
-    async createPost(title, authorId, { prisma }) {
-        return await prisma.post.create({ data: { title, authorId } });
+    async createPost(title, text, { prisma, req }) {
+        const authorId = req.session.userId;
+        return await prisma.post.create({
+            data: { title, authorId, text },
+            include: { author: true },
+        });
     }
     async updatePost(id, title, { prisma }) {
         return await prisma.post.update({ where: { id }, data: { title } });
@@ -57,10 +61,10 @@ __decorate([
     (0, type_graphql_1.Mutation)(() => post_1.PostType),
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)('title', () => String)),
-    __param(1, (0, type_graphql_1.Arg)('authorId', () => type_graphql_1.Int)),
+    __param(1, (0, type_graphql_1.Arg)('text', () => String)),
     __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Number, Object]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "createPost", null);
 __decorate([

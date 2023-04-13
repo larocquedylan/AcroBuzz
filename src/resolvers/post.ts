@@ -38,10 +38,14 @@ export class PostResolver {
   @UseMiddleware(isAuth)
   async createPost(
     @Arg('title', () => String) title: string,
-    @Arg('authorId', () => Int) authorId: number,
-    @Ctx() { prisma }: myContext
+    @Arg('text', () => String) text: string,
+    @Ctx() { prisma, req }: myContext
   ): Promise<PostModel> {
-    return await prisma.post.create({ data: { title, authorId } });
+    const authorId = req.session.userId;
+    return await prisma.post.create({
+      data: { title, authorId, text },
+      include: { author: true },
+    });
   }
 
   // update a post
