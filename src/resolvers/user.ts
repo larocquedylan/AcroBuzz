@@ -45,8 +45,12 @@ class UserResponse {
 export class UserResolver {
   // me query
   @Query(() => UserType, { nullable: true })
-  @UseMiddleware(isAuth)
+  // @UseMiddleware(isAuth)
   async me(@Ctx() { req, prisma }: myContext) {
+    if (!req.session.userId) {
+      return null;
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: req.session.userId },
     });
@@ -99,11 +103,30 @@ export class UserResolver {
     @Arg('options', () => UsernamePasswordInput) options: UsernamePasswordInput,
     @Ctx() { prisma, req }: myContext
   ): Promise<UserResponse> {
-    const user = await prisma.user.findUnique({
-      where: { username: options.username },
-    });
+    let user;
+    try {
+      // console.log('Executing findUnique...');
+      user = await prisma.user.findUnique({
+        where: { username: options.username },
+      });
+      // console.log('findUnique executed');
+      // console.log(user);
+    } catch (error) {
+      console.error('Error executing findUnique:', error);
+      return {
+        errors: [
+          {
+            field: 'username',
+            message: 'An error occurred while fetching the user.',
+          },
+        ],
+      };
+    }
 
     if (!user) {
+      console.log(user);
+      console.log('no user');
+
       return {
         errors: [
           {
@@ -116,6 +139,7 @@ export class UserResolver {
 
     const valid = await argon2.verify(user.password, options.password);
     if (!valid) {
+      console.log('invalid password');
       return {
         errors: [
           {
@@ -126,6 +150,7 @@ export class UserResolver {
       };
     }
 
+    console.log('req.session.userId from user login', req.session.userId);
     req.session.userId = user.id;
 
     return { user };

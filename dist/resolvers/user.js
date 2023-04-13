@@ -21,7 +21,6 @@ const argon2_1 = __importDefault(require("argon2"));
 const consts_1 = require("../consts");
 require("reflect-metadata");
 const user_1 = require("../types/user");
-const isAuth_1 = require("../middleware/isAuth");
 let UsernamePasswordInput = class UsernamePasswordInput {
 };
 __decorate([
@@ -63,6 +62,9 @@ UserResponse = __decorate([
 ], UserResponse);
 let UserResolver = class UserResolver {
     async me({ req, prisma }) {
+        if (!req.session.userId) {
+            return null;
+        }
         const user = await prisma.user.findUnique({
             where: { id: req.session.userId },
         });
@@ -102,10 +104,26 @@ let UserResolver = class UserResolver {
         return { user };
     }
     async login(options, { prisma, req }) {
-        const user = await prisma.user.findUnique({
-            where: { username: options.username },
-        });
+        let user;
+        try {
+            user = await prisma.user.findUnique({
+                where: { username: options.username },
+            });
+        }
+        catch (error) {
+            console.error('Error executing findUnique:', error);
+            return {
+                errors: [
+                    {
+                        field: 'username',
+                        message: 'An error occurred while fetching the user.',
+                    },
+                ],
+            };
+        }
         if (!user) {
+            console.log(user);
+            console.log('no user');
             return {
                 errors: [
                     {
@@ -117,6 +135,7 @@ let UserResolver = class UserResolver {
         }
         const valid = await argon2_1.default.verify(user.password, options.password);
         if (!valid) {
+            console.log('invalid password');
             return {
                 errors: [
                     {
@@ -126,6 +145,7 @@ let UserResolver = class UserResolver {
                 ],
             };
         }
+        console.log('req.session.userId from user login', req.session.userId);
         req.session.userId = user.id;
         return { user };
     }
@@ -143,7 +163,6 @@ let UserResolver = class UserResolver {
 };
 __decorate([
     (0, type_graphql_1.Query)(() => user_1.UserType, { nullable: true }),
-    (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
