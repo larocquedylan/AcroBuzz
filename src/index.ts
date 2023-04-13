@@ -72,6 +72,7 @@ const main = async () => {
           prisma,
           req: req as express.Request & { session: typeof session },
           res,
+          redis: redisClient,
         };
       },
     })
@@ -85,4 +86,3 @@ const main = async () => {
 main().catch((err) => {
   console.error(err);
 });
-
