@@ -12,14 +12,70 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PostResolver = void 0;
-const type_graphql_1 = require("type-graphql");
-const post_1 = require("../types/post");
+exports.PostResolver = exports.PaginatedPosts = exports.PaginationInput = void 0;
 require("reflect-metadata");
+const type_graphql_1 = require("type-graphql");
 const isAuth_1 = require("../middleware/isAuth");
+const post_1 = require("../types/post");
+const class_validator_1 = require("class-validator");
+let PaginationInput = class PaginationInput {
+};
+__decorate([
+    (0, type_graphql_1.Field)(() => String, { nullable: true }),
+    __metadata("design:type", String)
+], PaginationInput.prototype, "cursor", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => type_graphql_1.Int, { nullable: true, defaultValue: 10 }),
+    (0, class_validator_1.Min)(1),
+    (0, class_validator_1.Max)(50),
+    __metadata("design:type", Number)
+], PaginationInput.prototype, "limit", void 0);
+PaginationInput = __decorate([
+    (0, type_graphql_1.InputType)()
+], PaginationInput);
+exports.PaginationInput = PaginationInput;
+let PaginatedPosts = class PaginatedPosts {
+};
+__decorate([
+    (0, type_graphql_1.Field)(() => [post_1.PostType]),
+    __metadata("design:type", Array)
+], PaginatedPosts.prototype, "posts", void 0);
+__decorate([
+    (0, type_graphql_1.Field)(() => String, { nullable: true }),
+    __metadata("design:type", Object)
+], PaginatedPosts.prototype, "nextCursor", void 0);
+PaginatedPosts = __decorate([
+    (0, type_graphql_1.ObjectType)()
+], PaginatedPosts);
+exports.PaginatedPosts = PaginatedPosts;
 let PostResolver = class PostResolver {
-    async posts({ prisma }) {
-        return await prisma.post.findMany({ include: { author: true } });
+    async posts({ cursor, limit }, { prisma }) {
+        const take = Math.min(50, limit || 10);
+        const skip = 1;
+        const cursorOptions = cursor
+            ? {
+                createdAt: {
+                    lt: new Date(parseInt(cursor)),
+                },
+            }
+            : undefined;
+        const posts = await prisma.post.findMany({
+            where: cursorOptions,
+            orderBy: {
+                createdAt: 'desc',
+            },
+            include: { author: true },
+            take: take + 1,
+            skip,
+        });
+        const hasNextPage = posts.length > take;
+        const edges = hasNextPage ? posts.slice(0, -1) : posts;
+        return {
+            posts: edges,
+            nextCursor: hasNextPage
+                ? String(posts[posts.length - 1].createdAt.getTime())
+                : null,
+        };
     }
     async post(id, { prisma }) {
         return await prisma.post.findUnique({
@@ -43,10 +99,11 @@ let PostResolver = class PostResolver {
     }
 };
 __decorate([
-    (0, type_graphql_1.Query)(() => [post_1.PostType]),
-    __param(0, (0, type_graphql_1.Ctx)()),
+    (0, type_graphql_1.Query)(() => PaginatedPosts),
+    __param(0, (0, type_graphql_1.Arg)('input', () => PaginationInput)),
+    __param(1, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [PaginationInput, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "posts", null);
 __decorate([

@@ -1,3 +1,5 @@
+import { Post as PostModel } from '@prisma/client'; // Import Post from @prisma/client
+import 'reflect-metadata';
 import {
   Arg,
   Ctx,
@@ -6,19 +8,81 @@ import {
   Query,
   Resolver,
   UseMiddleware,
+  Field,
+  InputType,
+  ObjectType,
 } from 'type-graphql';
-import { myContext } from '../types';
-import { Post as PostModel } from '@prisma/client'; // Import Post from @prisma/client
-import { PostType } from '../types/post';
-import 'reflect-metadata';
 import { isAuth } from '../middleware/isAuth';
+import { myContext } from '../types';
+import { PostType } from '../types/post';
+import { Max, Min } from 'class-validator';
+
+@InputType()
+export class PaginationInput {
+  @Field(() => String, { nullable: true })
+  cursor?: string;
+
+  @Field(() => Int, { nullable: true, defaultValue: 10 })
+  @Min(1)
+  @Max(50)
+  limit?: number;
+}
+
+@ObjectType()
+export class PaginatedPosts {
+  @Field(() => [PostType])
+  posts: PostModel[];
+
+  @Field(() => String, { nullable: true })
+  nextCursor?: string | null;
+}
 
 @Resolver(() => PostType)
 export class PostResolver {
   // query that returns a list of posts
-  @Query(() => [PostType])
-  async posts(@Ctx() { prisma }: myContext): Promise<PostModel[]> {
-    return await prisma.post.findMany({ include: { author: true } });
+  // @Query(() => [PostType])
+  // async posts(
+  //   @Arg('limit', () => Int, { nullable: true }) limit: number,
+  //   @Arg('myCursor', () => Int, { nullable: true }) myCursor: number,
+  //   @Ctx() { prisma }: myContext
+  // ): Promise<PostModel[]> {
+  //   return await prisma.post.findMany({ include: { author: true } });
+  // }
+
+  @Query(() => PaginatedPosts)
+  async posts(
+    @Arg('input', () => PaginationInput) { cursor, limit }: PaginationInput,
+    @Ctx() { prisma }: myContext
+  ): Promise<PaginatedPosts> {
+    const take = Math.min(50, limit || 10);
+    const skip = 1;
+    const cursorOptions = cursor
+      ? {
+          createdAt: {
+            lt: new Date(parseInt(cursor)),
+          },
+        }
+      : undefined;
+
+    const posts = await prisma.post.findMany({
+      where: cursorOptions,
+      orderBy: {
+        createdAt: 'desc',
+      },
+      include: { author: true },
+      take: take + 1,
+      skip,
+    });
+
+    const hasNextPage = posts.length > take;
+    const edges = hasNextPage ? posts.slice(0, -1) : posts;
+
+    return {
+      posts: edges,
+      nextCursor: hasNextPage
+        ? String(posts[posts.length - 1].createdAt.getTime())
+        : null,
+    };
   }
 
   // query that returns a single post
