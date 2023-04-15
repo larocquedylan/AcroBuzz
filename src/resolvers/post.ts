@@ -54,7 +54,7 @@ export class PostResolver {
     @Ctx() { prisma }: myContext
   ): Promise<PaginatedPosts> {
     const take = Math.min(50, limit || 10);
-    const skip = 1;
+    const skip = 0;
     const cursorOptions = cursor
       ? {
           createdAt: {
