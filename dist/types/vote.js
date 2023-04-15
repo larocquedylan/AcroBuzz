@@ -20,9 +20,9 @@ __decorate([
     __metadata("design:type", Number)
 ], VoteType.prototype, "id", void 0);
 __decorate([
-    (0, type_graphql_1.Field)(),
-    __metadata("design:type", String)
-], VoteType.prototype, "voteType", void 0);
+    (0, type_graphql_1.Field)(() => type_graphql_1.Int),
+    __metadata("design:type", Number)
+], VoteType.prototype, "voteValue", void 0);
 __decorate([
     (0, type_graphql_1.Field)(() => type_graphql_1.Int),
     __metadata("design:type", Number)

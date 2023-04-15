@@ -7,8 +7,8 @@ export class VoteType {
   @Field(() => Int)
   id: number;
 
-  @Field()
-  voteType: string;
+  @Field(() => Int)
+  voteValue: number;
 
   @Field(() => Int)
   postId: number;
