@@ -49,6 +49,9 @@ PaginatedPosts = __decorate([
 ], PaginatedPosts);
 exports.PaginatedPosts = PaginatedPosts;
 let PostResolver = class PostResolver {
+    textSnippet(root) {
+        return root.text.slice(0, 100);
+    }
     async posts({ cursor, limit }, { prisma }) {
         const take = Math.min(50, limit || 10);
         const skip = 1;
@@ -98,6 +101,13 @@ let PostResolver = class PostResolver {
         return true;
     }
 };
+__decorate([
+    (0, type_graphql_1.FieldResolver)(() => String),
+    __param(0, (0, type_graphql_1.Root)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], PostResolver.prototype, "textSnippet", null);
 __decorate([
     (0, type_graphql_1.Query)(() => PaginatedPosts),
     __param(0, (0, type_graphql_1.Arg)('input', () => PaginationInput)),

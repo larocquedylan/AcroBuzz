@@ -11,6 +11,8 @@ import {
   Field,
   InputType,
   ObjectType,
+  FieldResolver,
+  Root,
 } from 'type-graphql';
 import { isAuth } from '../middleware/isAuth';
 import { myContext } from '../types';
@@ -39,16 +41,13 @@ export class PaginatedPosts {
 
 @Resolver(() => PostType)
 export class PostResolver {
-  // query that returns a list of posts
-  // @Query(() => [PostType])
-  // async posts(
-  //   @Arg('limit', () => Int, { nullable: true }) limit: number,
-  //   @Arg('myCursor', () => Int, { nullable: true }) myCursor: number,
-  //   @Ctx() { prisma }: myContext
-  // ): Promise<PostModel[]> {
-  //   return await prisma.post.findMany({ include: { author: true } });
-  // }
+  // resolver to only return snippet of post
+  @FieldResolver(() => String)
+  textSnippet(@Root() root: PostModel) {
+    return root.text.slice(0, 100);
+  }
 
+  // query that returns all posts
   @Query(() => PaginatedPosts)
   async posts(
     @Arg('input', () => PaginationInput) { cursor, limit }: PaginationInput,
