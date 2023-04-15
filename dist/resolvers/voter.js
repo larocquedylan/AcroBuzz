@@ -16,9 +16,12 @@ exports.VoteResolver = void 0;
 const type_graphql_1 = require("type-graphql");
 const vote_1 = require("../types/vote");
 let VoteResolver = class VoteResolver {
-    async vote(postId, voteType, { req, prisma }) {
+    async vote(postId, voteValue, { req, prisma }) {
         if (!req.session.userId) {
             throw new Error('Not authenticated');
+        }
+        if (voteValue !== 1 && voteValue !== -1) {
+            throw new Error('Invalid vote value, must be 1 or -1');
         }
         const userId = req.session.userId;
         const userVotes = await prisma.votes.findMany({
@@ -27,13 +30,13 @@ let VoteResolver = class VoteResolver {
                 userId,
             },
         });
-        const sameTypeVotes = userVotes.filter((vote) => vote.voteType === voteType);
-        if (sameTypeVotes.length >= 2) {
-            throw new Error(`Cannot ${voteType} more than twice`);
+        const voteSum = userVotes.reduce((sum, vote) => sum + vote.voteValue, 0);
+        if (voteSum + voteValue > 2 || voteSum + voteValue < -2) {
+            throw new Error('The sum of your votes cannot be outside of +/- 2');
         }
         const newVote = await prisma.votes.create({
             data: {
-                voteType,
+                voteValue,
                 postId,
                 userId,
             },
@@ -42,16 +45,24 @@ let VoteResolver = class VoteResolver {
                 user: true,
             },
         });
+        await prisma.post.update({
+            where: { id: postId },
+            data: {
+                totalPoints: {
+                    increment: voteValue,
+                },
+            },
+        });
         return newVote;
     }
 };
 __decorate([
     (0, type_graphql_1.Mutation)(() => vote_1.VoteType),
     __param(0, (0, type_graphql_1.Arg)('postId', () => type_graphql_1.Int)),
-    __param(1, (0, type_graphql_1.Arg)('voteType', () => String)),
+    __param(1, (0, type_graphql_1.Arg)('voteValue', () => type_graphql_1.Int)),
     __param(2, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:paramtypes", [Number, Number, Object]),
     __metadata("design:returntype", Promise)
 ], VoteResolver.prototype, "vote", null);
 VoteResolver = __decorate([
