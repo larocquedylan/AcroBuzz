@@ -36,6 +36,10 @@ __decorate([
     __metadata("design:type", String)
 ], PostType.prototype, "text", void 0);
 __decorate([
+    (0, type_graphql_1.Field)(() => type_graphql_1.Int),
+    __metadata("design:type", Number)
+], PostType.prototype, "totalPoints", void 0);
+__decorate([
     (0, type_graphql_1.Field)(() => user_1.UserType, { nullable: true }),
     __metadata("design:type", user_1.UserType)
 ], PostType.prototype, "author", void 0);

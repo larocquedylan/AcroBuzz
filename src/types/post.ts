@@ -19,6 +19,9 @@ export class PostType {
   @Field()
   text: string;
 
+  @Field(() => Int)
+  totalPoints: number;
+
   @Field(() => UserType, { nullable: true })
   author?: UserType;
 
