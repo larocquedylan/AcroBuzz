@@ -67,26 +67,7 @@ const main = async () => {
     }),
     expressMiddleware(apolloServer, {
       context: async ({ req, res }): Promise<myContext> => {
-        // console.log('🚀 ~ file: index.ts:70 ~ context: ~ req:', req);
         const session = req.session as session.Session & { userId: number };
-        // console.log(
-        //   '🚀 ~ file: index.ts:71 ~ context: ~ req.session:',
-        //   req.session
-        // );
-        console.log(
-          '🚀 ~ file: index.ts:71 ~ context: ~ req.headers:',
-          req.headers
-        );
-        // console.log(
-        //   '🚀 ~ file: index.ts:71 ~ context: ~ req.session:',
-        //   req.session
-        // );
-        // console.log(
-        //   '🚀 ~ file: index.ts:72 ~ context: ~ session.userId:',
-        //   session.userId
-        // );
-
-        // console.log('🚀 ~ file: index.ts:73 ~ context: ~ redis:', req);
 
         return {
           prisma,
