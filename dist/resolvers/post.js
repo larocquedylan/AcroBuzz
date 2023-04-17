@@ -96,9 +96,32 @@ let PostResolver = class PostResolver {
     async updatePost(id, title, { prisma }) {
         return await prisma.post.update({ where: { id }, data: { title } });
     }
-    async deletePost(id, { prisma }) {
-        await prisma.post.delete({ where: { id } });
-        return true;
+    async deletePost(id, { req, prisma }) {
+        console.log('starting delete from req.session:', req.session);
+        const post = await prisma.post.findUnique({ where: { id } });
+        console.log(post);
+        console.log('starting checks');
+        if (!post) {
+            console.log('no matching Id');
+            return false;
+        }
+        if (post.authorId !== req.session.userId) {
+            console.log('you can do that!');
+            throw new Error('Not Authorized');
+        }
+        if (post.authorId === req.session.userId) {
+            console.log('req.session.user matches post.authorId');
+        }
+        await prisma.votes.deleteMany({ where: { postId: id } });
+        try {
+            await prisma.post.delete({ where: { id } });
+            console.log('delete successful');
+            return true;
+        }
+        catch (error) {
+            console.error('delete failed:', error);
+            return false;
+        }
     }
 };
 __decorate([
