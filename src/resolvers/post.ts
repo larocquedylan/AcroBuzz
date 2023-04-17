@@ -129,26 +129,16 @@ export class PostResolver {
     @Arg('id', () => Int) id: number,
     @Ctx() { req, prisma }: myContext
   ): Promise<Boolean> {
-    console.log('starting delete from req.session:', req.session);
-
     const post = await prisma.post.findUnique({ where: { id } });
-
-    console.log(post);
-
-    console.log('starting checks');
 
     if (!post) {
       console.log('no matching Id');
       return false;
     }
-    
+
     if (post.authorId !== req.session.userId) {
       console.log('you can do that!');
       throw new Error('Not Authorized');
-    }
-
-    if (post.authorId === req.session.userId) {
-      console.log('req.session.user matches post.authorId');
     }
 
     // we have to delete votes on a post before deleting the post
@@ -163,4 +153,5 @@ export class PostResolver {
       console.error('delete failed:', error);
       return false;
     }
+  }
 }

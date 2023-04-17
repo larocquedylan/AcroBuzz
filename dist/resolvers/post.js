@@ -97,10 +97,7 @@ let PostResolver = class PostResolver {
         return await prisma.post.update({ where: { id }, data: { title } });
     }
     async deletePost(id, { req, prisma }) {
-        console.log('starting delete from req.session:', req.session);
         const post = await prisma.post.findUnique({ where: { id } });
-        console.log(post);
-        console.log('starting checks');
         if (!post) {
             console.log('no matching Id');
             return false;
@@ -108,9 +105,6 @@ let PostResolver = class PostResolver {
         if (post.authorId !== req.session.userId) {
             console.log('you can do that!');
             throw new Error('Not Authorized');
-        }
-        if (post.authorId === req.session.userId) {
-            console.log('req.session.user matches post.authorId');
         }
         await prisma.votes.deleteMany({ where: { postId: id } });
         try {
