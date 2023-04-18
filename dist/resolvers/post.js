@@ -93,8 +93,24 @@ let PostResolver = class PostResolver {
             include: { author: true },
         });
     }
-    async updatePost(id, title, { prisma }) {
-        return await prisma.post.update({ where: { id }, data: { title } });
+    async updatePost(id, title, text, { prisma, req }) {
+        const post = await prisma.post.findUnique({ where: { id } });
+        if (!post) {
+            console.log('no matching Id');
+            return null;
+        }
+        if (post.authorId !== req.session.userId) {
+            console.log('you can do that!');
+            throw new Error('Not Authorized');
+        }
+        const updatedPost = await prisma.post.update({
+            where: { id },
+            data: {
+                title: title !== undefined ? title : post.title,
+                text: text !== undefined ? text : post.text,
+            },
+        });
+        return updatedPost;
     }
     async deletePost(id, { req, prisma }) {
         const post = await prisma.post.findUnique({ where: { id } });
@@ -156,9 +172,10 @@ __decorate([
     (0, type_graphql_1.UseMiddleware)(isAuth_1.isAuth),
     __param(0, (0, type_graphql_1.Arg)('id', () => type_graphql_1.Int)),
     __param(1, (0, type_graphql_1.Arg)('title', () => String, { nullable: true })),
-    __param(2, (0, type_graphql_1.Ctx)()),
+    __param(2, (0, type_graphql_1.Arg)('text', () => String, { nullable: true })),
+    __param(3, (0, type_graphql_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number, String, Object]),
+    __metadata("design:paramtypes", [Number, String, String, Object]),
     __metadata("design:returntype", Promise)
 ], PostResolver.prototype, "updatePost", null);
 __decorate([

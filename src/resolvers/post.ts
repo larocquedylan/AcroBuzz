@@ -117,9 +117,31 @@ export class PostResolver {
   async updatePost(
     @Arg('id', () => Int) id: number,
     @Arg('title', () => String, { nullable: true }) title: string,
-    @Ctx() { prisma }: myContext
+    @Arg('text', () => String, { nullable: true }) text: string,
+    @Ctx() { prisma, req }: myContext
   ): Promise<PostModel | null> {
-    return await prisma.post.update({ where: { id }, data: { title } });
+    const post = await prisma.post.findUnique({ where: { id } });
+
+    if (!post) {
+      console.log('no matching Id');
+      return null;
+    }
+
+    if (post.authorId !== req.session.userId) {
+      console.log('you can do that!');
+      throw new Error('Not Authorized');
+    }
+
+    // Update the post and return the updated post
+    const updatedPost = await prisma.post.update({
+      where: { id },
+      data: {
+        title: title !== undefined ? title : post.title,
+        text: text !== undefined ? text : post.text,
+      },
+    });
+
+    return updatedPost;
   }
 
   // delete a post
