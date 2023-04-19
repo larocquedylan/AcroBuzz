@@ -15,17 +15,18 @@ const express4_1 = require("@apollo/server/express4");
 const post_1 = require("./resolvers/post");
 require("reflect-metadata");
 const user_1 = require("./resolvers/user");
+const voter_1 = require("./resolvers/voter");
 const connect_redis_1 = __importDefault(require("connect-redis"));
+const RedisStore = connect_redis_1.default.default;
 const express_session_1 = __importDefault(require("express-session"));
 const redis_1 = require("redis");
-const voter_1 = require("./resolvers/voter");
 const main = async () => {
     const prisma = new client_1.PrismaClient();
     console.log('Connected to the PostgreSQL database');
     const app = (0, express_1.default)();
     let redisClient = (0, redis_1.createClient)();
     redisClient.connect().catch(console.error);
-    let redisStore = new connect_redis_1.default({
+    let redisStore = new RedisStore({
         client: redisClient,
         prefix: 'myapp:',
         disableTouch: true,
@@ -62,7 +63,7 @@ const main = async () => {
                 prisma,
                 req: req,
                 res,
-                redis: redisClient,
+                redis: redisStore,
             };
         },
     }));

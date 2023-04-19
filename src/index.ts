@@ -10,11 +10,13 @@ import { expressMiddleware } from '@apollo/server/express4';
 import { PostResolver } from './resolvers/post';
 import 'reflect-metadata';
 import { UserResolver } from './resolvers/user';
-import RedisStore from 'connect-redis';
-import session from 'express-session';
-import { createClient } from 'redis';
 import { myContext } from './types';
 import { VoteResolver } from './resolvers/voter';
+
+import esmRedis from 'connect-redis';
+const RedisStore = esmRedis.default;
+import session from 'express-session';
+import { createClient } from 'redis';
 
 const main = async () => {
   const prisma = new PrismaClient();
@@ -73,7 +75,7 @@ const main = async () => {
           prisma,
           req: req as express.Request & { session: typeof session },
           res,
-          redis: redisClient,
+          redis: redisStore,
         };
       },
     })

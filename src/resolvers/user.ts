@@ -9,7 +9,7 @@ import {
   Resolver,
   UseMiddleware,
 } from 'type-graphql';
-import { myContext } from 'src/types';
+import { myContext } from '../types';
 import argon2 from 'argon2';
 import { COOKIE_NAME } from '../consts';
 import 'reflect-metadata';
