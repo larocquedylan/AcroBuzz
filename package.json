@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "tsc -p tsconfig.json",
     "watch": "tsc -w",
     "migrate": "node src/utils/migrate.js",
     "dev": "nodemon dist/index.js",
