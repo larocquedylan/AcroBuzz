@@ -1,3 +1,6 @@
+import argon2 from 'argon2';
+import 'reflect-metadata';
+import { myContext } from 'src/types';
 import {
   Arg,
   Ctx,
@@ -7,14 +10,9 @@ import {
   ObjectType,
   Query,
   Resolver,
-  UseMiddleware,
 } from 'type-graphql';
-import { myContext } from 'src/types';
-import argon2 from 'argon2';
 import { COOKIE_NAME } from '../consts';
-import 'reflect-metadata';
 import { UserType } from '../types/user';
-import { isAuth } from '../middleware/isAuth';
 
 @InputType()
 class UsernamePasswordInput {
@@ -45,7 +43,6 @@ class UserResponse {
 export class UserResolver {
   // me query
   @Query(() => UserType, { nullable: true })
-  // @UseMiddleware(isAuth)
   async me(@Ctx() { req, prisma }: myContext) {
     if (!req.session.userId) {
       return null;
@@ -105,12 +102,9 @@ export class UserResolver {
   ): Promise<UserResponse> {
     let user;
     try {
-      // console.log('Executing findUnique...');
       user = await prisma.user.findUnique({
         where: { username: options.username },
       });
-      // console.log('findUnique executed');
-      // console.log(user);
     } catch (error) {
       console.error('Error executing findUnique:', error);
       return {

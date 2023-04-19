@@ -16,10 +16,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserResolver = void 0;
-const type_graphql_1 = require("type-graphql");
 const argon2_1 = __importDefault(require("argon2"));
-const consts_1 = require("../consts");
 require("reflect-metadata");
+const type_graphql_1 = require("type-graphql");
+const consts_1 = require("../consts");
 const user_1 = require("../types/user");
 let UsernamePasswordInput = class UsernamePasswordInput {
 };

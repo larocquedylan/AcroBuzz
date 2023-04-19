@@ -1,37 +1,29 @@
-import { PrismaClient } from '@prisma/client';
-import { COOKIE_NAME, __prod__ } from './consts';
-import express from 'express';
 import { ApolloServer } from '@apollo/server';
-import { buildSchema } from 'type-graphql';
-import { HelloResolver } from './resolvers/hello';
-import cors from 'cors';
-import bodyParser from 'body-parser';
 import { expressMiddleware } from '@apollo/server/express4';
-import { PostResolver } from './resolvers/post';
+import { PrismaClient } from '@prisma/client';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import * as dotenv from 'dotenv';
+import 'dotenv-safe/config';
+import express from 'express';
 import 'reflect-metadata';
+import { buildSchema } from 'type-graphql';
+import { COOKIE_NAME, __prod__ } from './consts';
+import { HelloResolver } from './resolvers/hello';
+import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
-import RedisStore from 'connect-redis';
-import session from 'express-session';
-import { createClient } from 'redis';
-import { myContext } from './types';
 import { VoteResolver } from './resolvers/voter';
+
+import session from 'express-session';
+import { myContext } from './types';
+
+dotenv.config();
 
 const main = async () => {
   const prisma = new PrismaClient();
   console.log('Connected to the PostgreSQL database');
 
   const app = express();
-
-  // Initialize client.
-  let redisClient = createClient();
-  redisClient.connect().catch(console.error);
-
-  // Initialize store.
-  let redisStore = new RedisStore({
-    client: redisClient,
-    prefix: 'myapp:',
-    disableTouch: true,
-  });
 
   app.get('/', (_, res) => {
     res.send('hello');
@@ -53,16 +45,15 @@ const main = async () => {
     }),
     bodyParser.json(),
     session({
-      store: redisStore,
       name: COOKIE_NAME,
-      resave: false, // required: force lightweight session keep alive (touch)
-      saveUninitialized: false, // recommended: only save session when data exists
-      secret: 'garypayton', // use a env later
+      resave: false,
+      saveUninitialized: false,
+      secret: 'garypayton',
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 5, // 5 years
-        httpOnly: true, // cookie only accessible by the web server
-        sameSite: 'lax', // protection against CSRF
-        secure: __prod__, // cookie only works in https, when prod is true
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: __prod__,
       },
     }),
     expressMiddleware(apolloServer, {
@@ -73,14 +64,13 @@ const main = async () => {
           prisma,
           req: req as express.Request & { session: typeof session },
           res,
-          redis: redisClient,
         };
       },
     })
   );
 
-  app.listen(8080, () => {
-    console.log('Server started on localhost:8080');
+  app.listen(parseInt(process.env.PORT), () => {
+    console.log('Server started on localhost:4000');
   });
 };
 

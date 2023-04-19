@@ -1,35 +1,52 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const client_1 = require("@prisma/client");
-const consts_1 = require("./consts");
-const express_1 = __importDefault(require("express"));
 const server_1 = require("@apollo/server");
-const type_graphql_1 = require("type-graphql");
-const hello_1 = require("./resolvers/hello");
-const cors_1 = __importDefault(require("cors"));
-const body_parser_1 = __importDefault(require("body-parser"));
 const express4_1 = require("@apollo/server/express4");
-const post_1 = require("./resolvers/post");
+const client_1 = require("@prisma/client");
+const body_parser_1 = __importDefault(require("body-parser"));
+const cors_1 = __importDefault(require("cors"));
+const dotenv = __importStar(require("dotenv"));
+require("dotenv-safe/config");
+const express_1 = __importDefault(require("express"));
 require("reflect-metadata");
+const type_graphql_1 = require("type-graphql");
+const consts_1 = require("./consts");
+const hello_1 = require("./resolvers/hello");
+const post_1 = require("./resolvers/post");
 const user_1 = require("./resolvers/user");
-const connect_redis_1 = __importDefault(require("connect-redis"));
-const express_session_1 = __importDefault(require("express-session"));
-const redis_1 = require("redis");
 const voter_1 = require("./resolvers/voter");
+const express_session_1 = __importDefault(require("express-session"));
+dotenv.config();
 const main = async () => {
     const prisma = new client_1.PrismaClient();
     console.log('Connected to the PostgreSQL database');
     const app = (0, express_1.default)();
-    let redisClient = (0, redis_1.createClient)();
-    redisClient.connect().catch(console.error);
-    let redisStore = new connect_redis_1.default({
-        client: redisClient,
-        prefix: 'myapp:',
-        disableTouch: true,
-    });
     app.get('/', (_, res) => {
         res.send('hello');
     });
@@ -44,7 +61,6 @@ const main = async () => {
         origin: ['http://localhost:3000'],
         credentials: true,
     }), body_parser_1.default.json(), (0, express_session_1.default)({
-        store: redisStore,
         name: consts_1.COOKIE_NAME,
         resave: false,
         saveUninitialized: false,
@@ -62,12 +78,11 @@ const main = async () => {
                 prisma,
                 req: req,
                 res,
-                redis: redisClient,
             };
         },
     }));
-    app.listen(8080, () => {
-        console.log('Server started on localhost:8080');
+    app.listen(parseInt(process.env.PORT), () => {
+        console.log('Server started on localhost:4000');
     });
 };
 main().catch((err) => {
