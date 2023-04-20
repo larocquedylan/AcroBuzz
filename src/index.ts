@@ -38,9 +38,10 @@ const main = async () => {
 
   await apolloServer.start();
 
+  app.set('proxy', 1);
   app.use(
     cors<cors.CorsRequest>({
-      origin: ['http://localhost:3000'],
+      origin: process.env.CORS_ORIGIN,
       credentials: true,
     }),
     bodyParser.json(),
@@ -48,12 +49,13 @@ const main = async () => {
       name: COOKIE_NAME,
       resave: false,
       saveUninitialized: false,
-      secret: 'garypayton',
+      secret: process.env.SESSION_SECRET,
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 5, // 5 years
         httpOnly: true,
         sameSite: 'lax',
         secure: __prod__,
+        domain: __prod__ ? '.domain.com' : undefined, // cookie will only be sent to this domain
       },
     }),
     expressMiddleware(apolloServer, {
@@ -70,7 +72,7 @@ const main = async () => {
   );
 
   app.listen(parseInt(process.env.PORT), () => {
-    console.log('Server started on localhost:4000');
+    console.log('Server started on port:', process.env.PORT);
   });
 };
 
