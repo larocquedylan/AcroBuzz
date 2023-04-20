@@ -1,4 +1,4 @@
-import { Post as PostModel } from '@prisma/client'; // Import Post from @prisma/client
+import { Post as PostModel } from '@prisma/client';
 import 'reflect-metadata';
 import {
   Arg,
