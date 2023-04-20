@@ -55,7 +55,7 @@ const main = async () => {
         httpOnly: true,
         sameSite: 'lax',
         secure: __prod__,
-        domain: __prod__ ? '.domain.com' : undefined, // cookie will only be sent to this domain
+        domain: __prod__ ? '.larocque.xyz' : undefined, // cookie will only be sent to this domain if in production
       },
     }),
     expressMiddleware(apolloServer, {
