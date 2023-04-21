@@ -1,2 +1,5 @@
 node_modules
 .env
+dist
+.env.production
+root@134.122.41.254
