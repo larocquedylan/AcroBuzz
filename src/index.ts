@@ -38,7 +38,7 @@ const main = async () => {
 
   await apolloServer.start();
 
-  app.set('proxy', 1);
+  app.set('trust proxy', 1);
   app.use(
     cors<cors.CorsRequest>({
       origin: process.env.CORS_ORIGIN,
