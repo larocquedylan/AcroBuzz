@@ -17,7 +17,11 @@ import { VoteResolver } from './resolvers/voter';
 import session from 'express-session';
 import { myContext } from './types';
 
-dotenv.config();
+if (process.env.NODE_ENV === 'production') {
+  dotenv.config({ path: '.env.production' });
+} else {
+  dotenv.config();
+}
 
 const main = async () => {
   const prisma = new PrismaClient();
@@ -41,7 +45,8 @@ const main = async () => {
   app.set('trust proxy', 1);
   app.use(
     cors<cors.CorsRequest>({
-      origin: process.env.CORS_ORIGIN,
+      // origin: process.env.CORS_ORIGIN,
+      origin: 'https://acrobuzz.larocque.xyz',
       credentials: true,
     }),
     bodyParser.json(),
